@@ -1,0 +1,522 @@
+/**
+ * 
+ */
+package sv.cmu.mapred;
+
+import java.io.IOException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.RawComparator;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.TaskCompletionEvent;
+import org.apache.hadoop.mapreduce.Counters;
+import org.apache.hadoop.mapreduce.InputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.JobID;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.OutputFormat;
+import org.apache.hadoop.mapreduce.Partitioner;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.TaskAttemptID;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+
+
+/**
+ * Given the very unstable hadoop API, here we provide the methods to submit jobs by ourselves
+ * It is basically a wrapper over hadoop API, the only reason to do so is to prevent Hadoop
+ * upgrades from ruin the system again
+ * @author qing
+ *
+ */
+public class MapReduceJob implements Submittable{
+
+	private Job job = null;
+	
+	private Configuration conf = null;
+	
+	private String jobName = null;
+	
+	public MapReduceJob(Configuration conf, String jobName) throws IOException{
+		this.conf = conf;
+		this.jobName = jobName;
+		job = tryConstructJob();
+	}
+	
+	public MapReduceJob(String jobName) throws IOException{
+		this.conf = new Configuration();
+		this.jobName = jobName;
+		job = tryConstructJob();
+	}
+	
+	public MapReduceJob(String jobName, String queue) throws IOException{
+		this.conf = new Configuration();
+		conf.set("mapred.job.queue.name", queue);
+		this.jobName = jobName;
+		job = tryConstructJob();		
+	}
+	
+	
+	
+	private Job tryConstructJob() throws IOException{
+		if(conf != null && jobName != null)
+			return new Job(conf,jobName);
+		else
+			return null;
+	}
+	
+
+	public void failTask(TaskAttemptID taskId) throws IOException {
+		job.failTask(taskId);
+	}
+
+	public Class<? extends Reducer<?, ?, ?, ?>> getCombinerClass()
+			throws ClassNotFoundException {
+		return job.getCombinerClass();
+	}
+
+	public Configuration getConfiguration() {
+		return job.getConfiguration();
+	}
+
+	public Counters getCounters() throws IOException {
+		return job.getCounters();
+	}
+
+	public RawComparator<?> getGroupingComparator() {
+		return job.getGroupingComparator();
+	}
+
+	public Class<? extends InputFormat<?, ?>> getInputFormatClass()
+			throws ClassNotFoundException {
+		return job.getInputFormatClass();
+	}
+
+	public String getJar() {
+		return job.getJar();
+	}
+
+	public JobID getJobID() {
+		return job.getJobID();
+	}
+
+	public String getJobName() {
+		return job.getJobName();
+	}
+
+	public Class<?> getMapOutputKeyClass() {
+		return job.getMapOutputKeyClass();
+	}
+
+	public Class<?> getMapOutputValueClass() {
+		return job.getMapOutputValueClass();
+	}
+
+	public Class<? extends Mapper<?, ?, ?, ?>> getMapperClass()
+			throws ClassNotFoundException {
+		return job.getMapperClass();
+	}
+
+	public int getNumReduceTasks() {
+		return job.getNumReduceTasks();
+	}
+
+	public Class<? extends OutputFormat<?, ?>> getOutputFormatClass()
+			throws ClassNotFoundException {
+		return job.getOutputFormatClass();
+	}
+
+	public Class<?> getOutputKeyClass() {
+		return job.getOutputKeyClass();
+	}
+
+	public Class<?> getOutputValueClass() {
+		return job.getOutputValueClass();
+	}
+
+	public Class<? extends Partitioner<?, ?>> getPartitionerClass()
+			throws ClassNotFoundException {
+		return job.getPartitionerClass();
+	}
+
+	public Class<? extends Reducer<?, ?, ?, ?>> getReducerClass()
+			throws ClassNotFoundException {
+		return job.getReducerClass();
+	}
+
+	public RawComparator<?> getSortComparator() {
+		return job.getSortComparator();
+	}
+
+	public TaskCompletionEvent[] getTaskCompletionEvents(int startFrom)
+			throws IOException {
+		return job.getTaskCompletionEvents(startFrom);
+	}
+
+	public String getTrackingURL() {
+		return job.getTrackingURL();
+	}
+
+	public Path getWorkingDirectory() throws IOException {
+		return job.getWorkingDirectory();
+	}
+
+	public boolean isComplete() throws IOException {
+		return job.isComplete();
+	}
+
+	public boolean isSuccessful() throws IOException {
+		return job.isSuccessful();
+	}
+
+	public void killJob() throws IOException {
+		job.killJob();
+	}
+
+	public void killTask(TaskAttemptID taskId) throws IOException {
+		job.killTask(taskId);
+	}
+
+	public float mapProgress() throws IOException {
+		return job.mapProgress();
+	}
+
+	public float reduceProgress() throws IOException {
+		return job.reduceProgress();
+	}
+
+	@SuppressWarnings("unchecked")
+	public void setCombinerClass(Class<? extends Reducer> cls)
+			throws IllegalStateException {
+		job.setCombinerClass(cls);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void setGroupingComparatorClass(Class<? extends RawComparator> cls)
+			throws IllegalStateException {
+		job.setGroupingComparatorClass(cls);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void setInputFormatClass(Class<? extends InputFormat> cls)
+			throws IllegalStateException {
+		job.setInputFormatClass(cls);
+	}
+
+	public void setJarByClass(Class<?> cls) {
+		job.setJarByClass(cls);
+	}
+
+	public void setJobName(String name) throws IllegalStateException {
+		job.setJobName(name);
+	}
+
+	public void setMapOutputKeyClass(Class<?> theClass)
+			throws IllegalStateException {
+		job.setMapOutputKeyClass(theClass);
+	}
+
+	public void setMapOutputValueClass(Class<?> theClass)
+			throws IllegalStateException {
+		job.setMapOutputValueClass(theClass);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void setMapperClass(Class<? extends Mapper> cls)
+			throws IllegalStateException {
+		job.setMapperClass(cls);
+	}
+
+	public void setNumReduceTasks(int tasks) throws IllegalStateException {
+		job.setNumReduceTasks(tasks);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void setOutputFormatClass(Class<? extends OutputFormat> cls)
+			throws IllegalStateException {
+		job.setOutputFormatClass(cls);
+	}
+
+	public void setOutputKeyClass(Class<?> theClass)
+			throws IllegalStateException {
+		job.setOutputKeyClass(theClass);
+	}
+
+	public void setOutputValueClass(Class<?> theClass)
+			throws IllegalStateException {
+		job.setOutputValueClass(theClass);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void setPartitionerClass(Class<? extends Partitioner> cls)
+			throws IllegalStateException {
+		job.setPartitionerClass(cls);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void setReducerClass(Class<? extends Reducer> cls)
+			throws IllegalStateException {
+		job.setReducerClass(cls);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void setSortComparatorClass(Class<? extends RawComparator> cls)
+			throws IllegalStateException {
+		job.setSortComparatorClass(cls);
+	}
+
+	public void setWorkingDirectory(Path dir) throws IOException {
+		job.setWorkingDirectory(dir);
+	}
+
+	public void submit() throws IOException, InterruptedException,
+			ClassNotFoundException {
+		job.setJarByClass(MapReduceJob.class);
+		job.submit();
+	}
+
+	public boolean waitForCompletion(boolean verbose) throws IOException,
+			InterruptedException, ClassNotFoundException {
+		return job.waitForCompletion(verbose);
+	}
+	
+	
+	
+	/***
+	 * Get the default queue name
+	 * @return
+	 */
+	public String getQueueName(){
+		return job.getConfiguration().get("mapred.job.queue.name");
+	}
+	
+	/**
+	 * Set the default queue name
+	 * @param queue
+	 */
+	public void setQueueName(String queue){
+		job.getConfiguration().set("mapred.job.queue.name", queue);
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	public <INPUTKEY,INPUTVALUE,MAPOUTPUTKEY,MAPOUTPUTVALUE,REDUCERINPUTKEY,REDUCERINPUTVALUE, OUTPUTKEY,OUTPUTVALUE> 
+	void setBasicInfo(Class<? extends InputFormat<INPUTKEY,INPUTVALUE>> inputFormat,
+			                 Class<MAPOUTPUTKEY> mapOutputKey,
+			                 Class<MAPOUTPUTVALUE> mapOutputValue,
+			                 Class<? extends OutputFormat> outputFormat,
+			                 Class<? extends Mapper<INPUTKEY,INPUTVALUE,MAPOUTPUTKEY,MAPOUTPUTVALUE>> mapper,
+			                 Class<? extends Reducer<REDUCERINPUTKEY,REDUCERINPUTVALUE,OUTPUTKEY,OUTPUTVALUE>> reducer,
+			                 Class<? extends Reducer<MAPOUTPUTKEY,MAPOUTPUTVALUE,REDUCERINPUTKEY,REDUCERINPUTVALUE>> combiner,
+			                 int numberReducer,
+			                 String inputPath,
+			                 String outputPath
+			                 ) throws IOException{
+		////////////
+		job.setInputFormatClass(inputFormat);
+		job.setOutputFormatClass(outputFormat);
+		job.setMapOutputKeyClass(mapOutputKey);
+		job.setMapOutputValueClass(mapOutputValue);
+		job.setMapperClass(mapper);
+		if(reducer!=null)job.setReducerClass(reducer);
+		if(combiner!=null && reducer!=null) job.setCombinerClass(combiner);
+		job.setNumReduceTasks(numberReducer);
+		FileInputFormat.addInputPaths(job, inputPath);
+		FileOutputFormat.setOutputPath(job, new Path(outputPath));
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <INPUTKEY,INPUTVALUE,MAPOUTPUTKEY,MAPOUTPUTVALUE,REDUCERINPUTKEY,REDUCERINPUTVALUE, OUTPUTKEY,OUTPUTVALUE> 
+	void setBasicInfo(Class<? extends InputFormat<INPUTKEY,INPUTVALUE>> inputFormat,
+			                 Class<MAPOUTPUTKEY> mapOutputKey,
+			                 Class<MAPOUTPUTVALUE> mapOutputValue,
+			                 Class<? extends OutputFormat> outputFormat,
+			                 Class<? extends Mapper<INPUTKEY,INPUTVALUE,MAPOUTPUTKEY,MAPOUTPUTVALUE>> mapper,
+			                 Class<? extends Reducer<REDUCERINPUTKEY,REDUCERINPUTVALUE,OUTPUTKEY,OUTPUTVALUE>> reducer,
+			                 Class<? extends Reducer<MAPOUTPUTKEY,MAPOUTPUTVALUE,REDUCERINPUTKEY,REDUCERINPUTVALUE>> combiner,
+			                 int numberReducer,
+			                 int numberMapper,
+			                 String inputPath,
+			                 String outputPath
+			                 ) throws IOException{
+		////////////
+		job.setInputFormatClass(inputFormat);
+		job.setOutputFormatClass(outputFormat);
+		job.setMapOutputKeyClass(mapOutputKey);
+		job.setMapOutputValueClass(mapOutputValue);
+		job.setMapperClass(mapper);
+		if(reducer!=null)job.setReducerClass(reducer);
+		if(combiner!=null && reducer!=null) job.setCombinerClass(combiner);
+		job.setNumReduceTasks(numberReducer);
+		setNumMapTasks(numberMapper);
+		FileInputFormat.addInputPaths(job, inputPath);
+		FileOutputFormat.setOutputPath(job, new Path(outputPath));
+		
+		long sz = CommonFileOperations.getFileSize(inputPath);
+		
+		long maxSize = sz / numberMapper;
+		long minSize = sz / numberMapper/10;
+		
+		long originMaxSize = getMaxSplitSize();
+		long originMinsize = getMinSplitSize();
+		
+		setSplitSizeRange((int)Math.min(maxSize, originMaxSize),(int) Math.min(minSize, originMinsize));
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <INPUTKEY,INPUTVALUE,MAPOUTPUTKEY,MAPOUTPUTVALUE> 
+	void setBasicInfo(Class<? extends InputFormat<INPUTKEY,INPUTVALUE>> inputFormat,
+			                 Class<MAPOUTPUTKEY> mapOutputKey,
+			                 Class<MAPOUTPUTVALUE> mapOutputValue,
+			                 Class<? extends OutputFormat> outputFormat,
+			                 Class<? extends Mapper<INPUTKEY,INPUTVALUE,MAPOUTPUTKEY,MAPOUTPUTVALUE>> mapper,
+			                 String inputPath,
+			                 String outputPath
+			                 ) throws IOException{
+		////////////
+		job.setInputFormatClass(inputFormat);
+		job.setOutputFormatClass(outputFormat);
+		job.setMapOutputKeyClass(mapOutputKey);
+		job.setMapOutputValueClass(mapOutputValue);
+		job.setMapperClass(mapper);
+		job.setNumReduceTasks(0);
+		
+		FileInputFormat.addInputPaths(job, inputPath);
+		FileOutputFormat.setOutputPath(job, new Path(outputPath));
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <INPUTKEY,INPUTVALUE,MAPOUTPUTKEY,MAPOUTPUTVALUE> 
+	void setBasicInfo(Class<? extends InputFormat<INPUTKEY,INPUTVALUE>> inputFormat,
+			                 Class<MAPOUTPUTKEY> mapOutputKey,
+			                 Class<MAPOUTPUTVALUE> mapOutputValue,
+			                 Class<? extends OutputFormat> outputFormat,
+			                 Class<? extends Mapper<INPUTKEY,INPUTVALUE,MAPOUTPUTKEY,MAPOUTPUTVALUE>> mapper,
+			                 int numMapper,
+			                 String inputPath,
+			                 String outputPath
+			                 ) throws IOException{
+		////////////
+		job.setInputFormatClass(inputFormat);
+		job.setOutputFormatClass(outputFormat);
+		job.setMapOutputKeyClass(mapOutputKey);
+		job.setMapOutputValueClass(mapOutputValue);
+		job.setMapperClass(mapper);
+		job.setNumReduceTasks(0);
+		setNumMapTasks(numMapper);
+		FileInputFormat.addInputPaths(job, inputPath);
+		FileOutputFormat.setOutputPath(job, new Path(outputPath));
+		long sz = CommonFileOperations.getFileSize(inputPath);
+		
+		long maxSize = sz / numMapper;
+		long minSize = sz / numMapper/10;
+		
+		long originMaxSize = getMaxSplitSize();
+		long originMinsize = getMinSplitSize();
+		
+		setSplitSizeRange((int)Math.min(maxSize, originMaxSize),(int) Math.min(minSize, originMinsize));
+		
+	}
+	
+	public void setNumMapTasks(int i){
+		job.getConfiguration().setInt("mapred.map.tasks", i);
+	}
+	
+	private static final String chldKey = "mapred.child.java.opts";
+	/**
+	 * Set the heap size
+	 * @param heap
+	 */
+	public void setChildTaskHeapSize(String heap){
+		String param = job.getConfiguration().get(chldKey);
+		if(param == null || param.length() == 0){
+			job.getConfiguration().set(chldKey, "-Xmx"+heap);
+		}else{
+			String[] sp = param.split("\\s+");
+			boolean replaced = false;
+			for(int i = 0 ; i< sp.length ; i++){
+				if(sp[i].indexOf("-Xmx")>=0){
+					sp[i] = "-Xmx"+heap;
+					replaced = true;
+				}
+			}
+			StringBuffer bf  = new StringBuffer();
+			for(int i = 0 ; i< sp.length ; i++){
+				bf.append(sp[i]).append(" ");
+			}
+			if(!replaced){
+				bf.append("-Xmx"+heap);
+			}
+			job.getConfiguration().set(chldKey, bf.toString().trim());
+		}
+	}
+	
+	private static final String mapMax = "mapred.tasktracker.map.tasks.maximum";
+	public void setMaxMapTasksPerNode(int n){
+		
+		if(n<=0){
+			return;
+		}
+		job.getConfiguration().setInt(mapMax, n);
+	}
+	
+	private static final String redMax = "mapred.tasktracker.reduce.tasks.maximum";
+	public void setMaxReduceTasksPerNode(int n){
+		if(n<=0){
+			return;
+		}
+		job.getConfiguration().setInt(redMax, n);
+	}
+
+
+	@SuppressWarnings("unchecked")
+	public  
+	void setBasicInfoUnchecked(Class inputFormat,
+			                 Class mapOutputKey,
+			                 Class mapOutputValue,
+			                 Class outputFormat,
+			                 Class mapper,
+			                 Class reducer,
+			                 Class combiner,
+			                 int numberReducer,
+			                 String inputPath,
+			                 String outputPath
+			                 ) throws IOException{
+		////////////
+		job.setInputFormatClass(inputFormat);
+		job.setOutputFormatClass(outputFormat);
+		job.setMapOutputKeyClass(mapOutputKey);
+		job.setMapOutputValueClass(mapOutputValue);
+		job.setMapperClass(mapper);
+		if(reducer!=null)job.setReducerClass(reducer);
+		if(combiner!=null && reducer!=null) job.setCombinerClass(combiner);
+		job.setNumReduceTasks(numberReducer);
+		FileInputFormat.addInputPaths(job, inputPath);
+		FileOutputFormat.setOutputPath(job, new Path(outputPath));
+	}
+	///////////////// For stupid backward compatiblity issue ///
+
+
+	public void setSplitSizeRange(int minBytes, int maxBytes){
+		if(minBytes>0){
+			FileInputFormat.setMinInputSplitSize(job, minBytes);
+		}
+		if(maxBytes>0){
+			FileInputFormat.setMaxInputSplitSize(job, maxBytes);
+		}
+	}
+	
+	public long getMaxSplitSize(){
+		return FileInputFormat.getMaxSplitSize(job);
+	}
+	
+	public long getMinSplitSize(){
+		return FileInputFormat.getMinSplitSize(job);
+	}
+
+	
+	
+}

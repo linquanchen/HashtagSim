@@ -1,0 +1,80 @@
+package sv.cmu.mapred;
+
+import java.io.IOException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.NullWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+
+public class NGramCountDriver {
+
+	public static void main(String args[]) throws IOException,
+			InterruptedException, ClassNotFoundException {
+		if (args.length < 2) {
+			System.err
+					.println("Usage: hadoop -jar <THIS-JAR> <INPUT> <OUTPUT>[Prob=False]  [NGram=3] ");
+		}
+		long start = System.currentTimeMillis();
+		String input = args[0];
+		String output = args[1];
+		int ngram = 3;
+		boolean calcProb = false;
+		if (args.length > 2) {
+			calcProb = Boolean.getBoolean(args[2]);
+		}
+		if (args.length > 3) {
+			ngram = Integer.parseInt(args[3]);
+		}
+
+		if (!calcProb) {
+
+			// Get a configure object
+			Configuration conf = new Configuration();
+
+			// Pass information to Mapper/Reducer
+			conf.setInt("ngram", ngram);
+
+			// Create a job
+			Job job = new Job(conf);
+
+			// Set the Mapper output key/value type
+			job.setMapOutputKeyClass(Text.class);
+			job.setMapOutputValueClass(NullWritable.class);
+
+			// Set the input format and output format
+			job.setInputFormatClass(TextInputFormat.class);
+			job.setOutputFormatClass(TextOutputFormat.class);
+
+			// Set mapper/reducer class
+			job.setMapperClass(NGramCountMapper.class);
+			job.setReducerClass(NGramCountReducer.class);
+
+			// Let Hadoop pass your Jar file
+			job.setJarByClass(NGramCountDriver.class);
+
+			// Input file/dir
+			TextInputFormat.addInputPath(job, new Path(input));
+
+			// And output file/dir
+			TextOutputFormat.setOutputPath(job, new Path(output));
+
+			// Set a name so you can check
+			job.setJobName("18645 N-Gram Count");
+			job.submit();
+
+			// Wait until complete
+			job.waitForCompletion(true);
+
+		} else {
+			// Implement your code for calculating N-Gram probabilities
+		}
+		long end = System.currentTimeMillis();
+
+		System.err.println(String.format("Running time: %d ms", end - start));
+	}
+
+}
