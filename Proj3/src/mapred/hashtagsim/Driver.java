@@ -4,11 +4,16 @@ import java.io.IOException;
 import mapred.job.Optimizedjob;
 import mapred.util.FileUtil;
 import mapred.util.SimpleParser;
+import mapred.util.InputLines;
+import java.util.HashSet;
+import mapred.filesystem.CommonFileOperations;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 
 public class Driver {
+
+	public static HashSet<String> tags = new HashSet<String>();
 
 	public static void main(String args[]) throws Exception {
 		SimpleParser parser = new SimpleParser(args);
@@ -17,17 +22,19 @@ public class Driver {
 		String output = parser.get("output");
 		String tmpdir = parser.get("tmpdir");
 
-		getJobFeatureVector(input, tmpdir + "/job_feature_vector");
+		// getJobFeatureVector(input, tmpdir + "/job_feature_vector");
 
-		String jobFeatureVector = loadJobFeatureVector(tmpdir
-				+ "/job_feature_vector");
+		// String jobFeatureVector = loadJobFeatureVector(tmpdir
+		// 		+ "/job_feature_vector");
 
-		System.out.println("Job feature vector: " + jobFeatureVector);
+		// System.out.println("Job feature vector: " + jobFeatureVector);
 
 		getHashtagFeatureVector(input, tmpdir + "/feature_vector");
+        convertHashtagFeatureVector(tmpdir + "/feature_vector", tmpdir + "/new_feature_vector");
+		getAllHashtagSimilarities(tmpdir + "/new_feature_vector", output);
 
-		getHashtagSimilarities(jobFeatureVector, tmpdir + "/feature_vector",
-				output);
+		// getHashtagSimilarities(jobFeatureVector, tmpdir + "/feature_vector",
+		// 		output);
 	}
 
 	/**
@@ -117,4 +124,57 @@ public class Driver {
 		job.setMapOutputClasses(IntWritable.class, Text.class);
 		job.run();
 	}
+    
+    private static void convertHashtagFeatureVector(String input, String output) 
+        throws IOException, ClassNotFoundException, InterruptedException {
+        
+        Optimizedjob job = new Optimizedjob(new Configuration(), input, output, 
+                "Convert the feature vector");
+        job.setClasses(ConvertMapper.class, ConvertReducer.class, null);
+        job.setMapOutputClasses(Text.class, Text.class);
+        job.run();
+    }
+
+	private static void getAllHashtagSimilarities(String input, String output) 
+			throws IOException, ClassNotFoundException, InterruptedException {
+    
+        Optimizedjob job = new Optimizedjob(new Configuration(), input, output, 
+                "Get similarities between all hashtags");
+        job.setClasses(SimilarityMapper.class, SimilarityReducer.class, null);
+        job.setMapOutputClasses(Text.class, IntWritable.class);
+        job.run();
+        
+    }	
+//    private static void getAllHashtagSimilarities(String input, String output) 
+//			throws IOException, ClassNotFoundException, InterruptedException {
+//		String[] fileNames = CommonFileOperations.listAllFiles(input, ".*part.*", false);
+//		System.out.println("there are " + fileNames.length + " files in total");
+//
+//		for (int i = 0; i < fileNames.length; i++) {
+//			String tmpFileName = fileNames[i];
+//			InputLines lines = FileUtil.loadLines(tmpFileName);
+//			int count = 0;
+//			for (String line : lines) {
+//				String featureVector = line.split("\\s+", 2)[1];
+//				String firstTag = line.split("\\s+", 2)[0];
+//				String outputName = output + "/part" + count;
+//
+//				Configuration conf = new Configuration();
+//				conf.set("featureVector", featureVector);
+//				conf.set("firstTag", firstTag);
+//				tags.add(firstTag);
+//				
+//				Optimizedjob job = new Optimizedjob(conf, input, outputName,
+//						"Get similarities between " + firstTag + " and all other hashtags");
+//				job.setClasses(SimilarityMapper.class, null, null);
+//				job.setMapOutputClasses(IntWritable.class, Text.class);
+//				job.run();
+//				count++;
+//			}
+//		}
+//
+//	}
+
 }
+
+

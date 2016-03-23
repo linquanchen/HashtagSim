@@ -28,10 +28,12 @@ public class HashtagReducer extends Reducer<Text, Text, Text, Text> {
 		 * 
 		 * word1:count1;word2:count2;...;wordN:countN;
 		 */
-		StringBuilder builder = new StringBuilder();
+//		StringBuilder builder = new StringBuilder();
+//		for (Map.Entry<String, Integer> e : counts.entrySet()) 
+//			builder.append(e.getKey() + ":" + e.getValue() + ";");
+//		
+//		context.write(key, new Text(builder.toString()));
 		for (Map.Entry<String, Integer> e : counts.entrySet()) 
-			builder.append(e.getKey() + ":" + e.getValue() + ";");
-		
-		context.write(key, new Text(builder.toString()));
-	}
+	        context.write(new Text(e.getKey()), new Text(key.toString() + ":" + e.getValue()));
+    }
 }
