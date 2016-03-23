@@ -8,20 +8,22 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 
 public class Driver {
-
 	public static void main(String args[]) throws Exception {
 		SimpleParser parser = new SimpleParser(args);
 
 		String input = parser.get("input");
 		String output = parser.get("output");
-
-		getJobFeatureVector(input, output);
+        // Get the n from the command line
+        String n = parser.get("n");
+		getJobFeatureVector(input, output, n);
 
 	}
 
-	private static void getJobFeatureVector(String input, String output)
+	private static void getJobFeatureVector(String input, String output, String n)
 			throws IOException, ClassNotFoundException, InterruptedException {
-		Optimizedjob job = new Optimizedjob(new Configuration(), input, output,
+        Configuration conf = new Configuration();
+        conf.set("N", n);
+		Optimizedjob job = new Optimizedjob(conf, input, output,
 				"Compute NGram Count");
 
 		job.setClasses(NgramCountMapper.class, NgramCountReducer.class, null);
