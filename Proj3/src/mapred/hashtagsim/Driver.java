@@ -30,7 +30,7 @@ public class Driver {
 		// System.out.println("Job feature vector: " + jobFeatureVector);
 
 		getHashtagFeatureVector(input, tmpdir + "/feature_vector");
-        convertHashtagFeatureVector(tmpdir + "/feature_vector", tmpdir + "/new_feature_vector");
+        getAllHashtagSimilaritiesToOneWord(tmpdir + "/feature_vector", tmpdir + "/new_feature_vector");
 		getAllHashtagSimilarities(tmpdir + "/new_feature_vector", output);
 
 		// getHashtagSimilarities(jobFeatureVector, tmpdir + "/feature_vector",
@@ -125,55 +125,45 @@ public class Driver {
 		job.run();
 	}
     
-    private static void convertHashtagFeatureVector(String input, String output) 
+    /**
+     * Get all similariey between all hashtags correspond to one word;
+     * Eg. a    #b:2;#c:1;#d:4;#e:3
+     *
+     * @param input
+     * @param output
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws InterruptedException
+     */
+    private static void getAllHashtagSimilaritiesToOneWord(String input, String output) 
         throws IOException, ClassNotFoundException, InterruptedException {
         
         Optimizedjob job = new Optimizedjob(new Configuration(), input, output, 
-                "Convert the feature vector");
-        job.setClasses(ConvertMapper.class, ConvertReducer.class, null);
+                "Get similarities between all hashtags correspond to one word");
+        job.setClasses(SimilarityMapper.class, SimilarityReducer.class, null);
         job.setMapOutputClasses(Text.class, Text.class);
         job.run();
     }
-
+    
+    /**
+     * Merge similarities of all hashtags.
+     *
+     * @param input
+     * @param output
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws InterruptedException
+     */
 	private static void getAllHashtagSimilarities(String input, String output) 
 			throws IOException, ClassNotFoundException, InterruptedException {
     
         Optimizedjob job = new Optimizedjob(new Configuration(), input, output, 
-                "Get similarities between all hashtags");
-        job.setClasses(SimilarityMapper.class, SimilarityReducer.class, null);
+                "Merge similarities of all hashtags");
+        job.setClasses(MergeSimilarityMapper.class, MergeSimilarityReducer.class, null);
         job.setMapOutputClasses(Text.class, IntWritable.class);
         job.run();
         
     }	
-//    private static void getAllHashtagSimilarities(String input, String output) 
-//			throws IOException, ClassNotFoundException, InterruptedException {
-//		String[] fileNames = CommonFileOperations.listAllFiles(input, ".*part.*", false);
-//		System.out.println("there are " + fileNames.length + " files in total");
-//
-//		for (int i = 0; i < fileNames.length; i++) {
-//			String tmpFileName = fileNames[i];
-//			InputLines lines = FileUtil.loadLines(tmpFileName);
-//			int count = 0;
-//			for (String line : lines) {
-//				String featureVector = line.split("\\s+", 2)[1];
-//				String firstTag = line.split("\\s+", 2)[0];
-//				String outputName = output + "/part" + count;
-//
-//				Configuration conf = new Configuration();
-//				conf.set("featureVector", featureVector);
-//				conf.set("firstTag", firstTag);
-//				tags.add(firstTag);
-//				
-//				Optimizedjob job = new Optimizedjob(conf, input, outputName,
-//						"Get similarities between " + firstTag + " and all other hashtags");
-//				job.setClasses(SimilarityMapper.class, null, null);
-//				job.setMapOutputClasses(IntWritable.class, Text.class);
-//				job.run();
-//				count++;
-//			}
-//		}
-//
-//	}
 
 }
 

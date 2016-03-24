@@ -33,7 +33,11 @@ public class HashtagReducer extends Reducer<Text, Text, Text, Text> {
 //			builder.append(e.getKey() + ":" + e.getValue() + ";");
 //		
 //		context.write(key, new Text(builder.toString()));
+//
+
+        // Output: a    #b:2
 		for (Map.Entry<String, Integer> e : counts.entrySet()) 
-	        context.write(new Text(e.getKey()), new Text(key.toString() + ":" + e.getValue()));
+	        context.write(new Text(e.getKey()), 
+                    new Text(key.toString() + ":" + e.getValue()));
     }
 }
