@@ -138,7 +138,12 @@ public class Driver {
     private static void getAllHashtagSimilaritiesToOneWord(String input, String output) 
         throws IOException, ClassNotFoundException, InterruptedException {
         
-        Optimizedjob job = new Optimizedjob(new Configuration(), input, output, 
+        Configuration conf = new Configuration();
+//        conf.setInt("dfs.block.size",327680);
+//		conf.setInt("mapred.max.split.size",327680);
+//		conf.setInt("mapred.min.split.size",327680);
+//        conf.setInt("mapred.reduce.tasks",16);
+        Optimizedjob job = new Optimizedjob(conf, input, output, 
                 "Get similarities between all hashtags correspond to one word");
         job.setClasses(SimilarityMapper.class, SimilarityReducer.class, null);
         job.setMapOutputClasses(Text.class, Text.class);
@@ -156,8 +161,9 @@ public class Driver {
      */
 	private static void getAllHashtagSimilarities(String input, String output) 
 			throws IOException, ClassNotFoundException, InterruptedException {
-    
-        Optimizedjob job = new Optimizedjob(new Configuration(), input, output, 
+        Configuration conf = new Configuration();
+//        conf.setInt("mapred.reduce.tasks", 4);
+        Optimizedjob job = new Optimizedjob(conf, input, output, 
                 "Merge similarities of all hashtags");
         job.setClasses(MergeSimilarityMapper.class, MergeSimilarityReducer.class, null);
         job.setMapOutputClasses(Text.class, IntWritable.class);
