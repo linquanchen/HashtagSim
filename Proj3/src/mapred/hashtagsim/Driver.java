@@ -13,8 +13,6 @@ import org.apache.hadoop.io.Text;
 
 public class Driver {
 
-	public static HashSet<String> tags = new HashSet<String>();
-
 	public static void main(String args[]) throws Exception {
 		SimpleParser parser = new SimpleParser(args);
 
@@ -22,20 +20,50 @@ public class Driver {
 		String output = parser.get("output");
 		String tmpdir = parser.get("tmpdir");
 
-		// getJobFeatureVector(input, tmpdir + "/job_feature_vector");
-
-		// String jobFeatureVector = loadJobFeatureVector(tmpdir
-		// 		+ "/job_feature_vector");
-
-		// System.out.println("Job feature vector: " + jobFeatureVector);
-
 		getHashtagFeatureVector(input, tmpdir + "/feature_vector");
-        getAllHashtagSimilaritiesToOneWord(tmpdir + "/feature_vector", tmpdir + "/new_feature_vector");
-		getAllHashtagSimilarities(tmpdir + "/new_feature_vector", output);
-
-		// getHashtagSimilarities(jobFeatureVector, tmpdir + "/feature_vector",
-		// 		output);
+        getAllHashtagSimilarities(tmpdir + "/feature_vector", output);
 	}
+
+	/**
+     * Computes feature vector for all hashtags.
+	 * 
+	 * @param input
+	 * @param output
+	 * @throws Exception
+	 */
+	private static void getHashtagFeatureVector(String input, String output)
+			throws Exception {
+		Optimizedjob job = new Optimizedjob(new Configuration(), input, output,
+				"Get feature vector for all hashtags");
+		job.setClasses(HashtagMapper.class, HashtagReducer.class, null);
+		job.setMapOutputClasses(Text.class, Text.class);
+		job.run();
+	}
+    
+    /**
+     * Get all similariey between all hashtags.
+     *  
+     * @param input
+     * @param output
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws InterruptedException
+     */
+    private static void getAllHashtagSimilarities(String input, String output) 
+        throws IOException, ClassNotFoundException, InterruptedException {
+        
+        Configuration conf = new Configuration();
+        conf.setInt("dfs.block.size",327680);
+		conf.setInt("mapred.max.split.size",327680);
+		conf.setInt("mapred.min.split.size",327680);
+        conf.setInt("mapred.map.tasks",16);
+        conf.setInt("mapred.reduce.tasks", 16);
+        Optimizedjob job = new Optimizedjob(conf, input, output, 
+                "Get similarities between all hashtags");
+        job.setClasses(SimilarityMapper.class, SimilarityReducer.class, null);
+        job.setMapOutputClasses(Text.class, Text.class);
+        job.run();
+    }
 
 	/**
 	 * Computes the word cooccurrence counts for hashtag #job
@@ -79,22 +107,6 @@ public class Driver {
 		return featureVector;
 	}
 
-	/**
-	 * Same as getJobFeatureVector, but this one actually computes feature
-	 * vector for all hashtags.
-	 * 
-	 * @param input
-	 * @param output
-	 * @throws Exception
-	 */
-	private static void getHashtagFeatureVector(String input, String output)
-			throws Exception {
-		Optimizedjob job = new Optimizedjob(new Configuration(), input, output,
-				"Get feature vector for all hashtags");
-		job.setClasses(HashtagMapper.class, HashtagReducer.class, null);
-		job.setMapOutputClasses(Text.class, Text.class);
-		job.run();
-	}
 
 	/**
 	 * When we have feature vector for both #job and all other hashtags, we can
@@ -125,52 +137,6 @@ public class Driver {
 		job.run();
 	}
     
-    /**
-     * Get all similariey between all hashtags correspond to one word;
-     * Eg. a    #b:2;#c:1;#d:4;#e:3
-     *
-     * @param input
-     * @param output
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 * @throws InterruptedException
-     */
-    private static void getAllHashtagSimilaritiesToOneWord(String input, String output) 
-        throws IOException, ClassNotFoundException, InterruptedException {
-        
-        Configuration conf = new Configuration();
-//        conf.setInt("dfs.block.size",327680);
-//		conf.setInt("mapred.max.split.size",327680);
-//		conf.setInt("mapred.min.split.size",327680);
-//        conf.setInt("mapred.reduce.tasks",16);
-        Optimizedjob job = new Optimizedjob(conf, input, output, 
-                "Get similarities between all hashtags correspond to one word");
-        job.setClasses(SimilarityMapper.class, SimilarityReducer.class, null);
-        job.setMapOutputClasses(Text.class, Text.class);
-        job.run();
-    }
-    
-    /**
-     * Merge similarities of all hashtags.
-     *
-     * @param input
-     * @param output
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 * @throws InterruptedException
-     */
-	private static void getAllHashtagSimilarities(String input, String output) 
-			throws IOException, ClassNotFoundException, InterruptedException {
-        Configuration conf = new Configuration();
-//        conf.setInt("mapred.reduce.tasks", 4);
-        Optimizedjob job = new Optimizedjob(conf, input, output, 
-                "Merge similarities of all hashtags");
-        job.setClasses(MergeSimilarityMapper.class, MergeSimilarityReducer.class, null);
-        job.setMapOutputClasses(Text.class, IntWritable.class);
-        job.run();
-        
-    }	
-
 }
 
 

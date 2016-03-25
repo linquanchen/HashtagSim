@@ -24,20 +24,16 @@ public class HashtagReducer extends Reducer<Text, Text, Text, Text> {
 		}
 		
 		/*
-		 * We're serializing the word cooccurrence count as a string of the following form:
+		 * We're serializing the hashtag cooccurrence count as a string of the following form:
 		 * 
-		 * word1:count1;word2:count2;...;wordN:countN;
+		 * hashtag1:count1;hashtag2:count2;...;hashtagN:countN;
 		 */
-//		StringBuilder builder = new StringBuilder();
-//		for (Map.Entry<String, Integer> e : counts.entrySet()) 
-//			builder.append(e.getKey() + ":" + e.getValue() + ";");
-//		
-//		context.write(key, new Text(builder.toString()));
-//
-
-        // Output: a    #b:2
-		for (Map.Entry<String, Integer> e : counts.entrySet()) 
-	        context.write(new Text(e.getKey()), 
-                    new Text(key.toString() + ":" + e.getValue()));
+        if (counts.size() > 1) {
+		    StringBuilder builder = new StringBuilder();
+		    for (Map.Entry<String, Integer> e : counts.entrySet()) 
+			    builder.append(e.getKey() + ":" + e.getValue() + ";");
+	        	
+		    context.write(key, new Text(builder.toString()));
+        }
     }
 }
