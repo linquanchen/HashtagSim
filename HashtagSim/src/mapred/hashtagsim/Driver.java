@@ -33,7 +33,8 @@ public class Driver {
 	 */
 	private static void getHashtagFeatureVector(String input, String output)
 			throws Exception {
-		Optimizedjob job = new Optimizedjob(new Configuration(), input, output,
+        Configuration conf = new Configuration();
+		Optimizedjob job = new Optimizedjob(conf, input, output,
 				"Get feature vector for all hashtags");
 		job.setClasses(HashtagMapper.class, HashtagReducer.class, null);
 		job.setMapOutputClasses(Text.class, Text.class);
@@ -53,9 +54,9 @@ public class Driver {
         throws IOException, ClassNotFoundException, InterruptedException {
         
         Configuration conf = new Configuration();
-        conf.setInt("dfs.block.size",327680);
-		conf.setInt("mapred.max.split.size",327680);
-		conf.setInt("mapred.min.split.size",327680);
+        conf.setInt("dfs.block.size", 327680); 
+		conf.setInt("mapred.max.split.size", 327680);
+		conf.setInt("mapred.min.split.size", 327680);
         conf.setInt("mapred.map.tasks",16);
         conf.setInt("mapred.reduce.tasks", 16);
         Optimizedjob job = new Optimizedjob(conf, input, output, 
