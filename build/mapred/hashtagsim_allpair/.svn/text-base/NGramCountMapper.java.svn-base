@@ -1,0 +1,44 @@
+package sv.cmu.mapred;
+
+import java.io.IOException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.NullWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Mapper;
+
+public class NGramCountMapper extends Mapper<LongWritable, Text, Text, NullWritable> {
+	
+	private int ngram = 3;
+	
+	
+	@Override
+	protected void map(LongWritable key, Text value,
+			Context context)
+			throws IOException, InterruptedException {
+		String line = value.toString();
+		String[] words = line.trim().split("\\s+");
+		long k =key.get();
+		for(int i = 0; i< words.length ; i++ ){
+			StringBuilder bld =  new StringBuilder();
+			for(int n = 1; n <= ngram && n <= words.length - i; n++){
+				if(n>1) bld.append(" ");
+				bld.append(words[i-1+n]);
+				Text ng = new Text(bld.toString());
+				context.write(ng, NullWritable.get());
+			}
+		}
+
+	}
+
+	@Override
+	protected void setup(Context context)
+			throws IOException, InterruptedException {
+		super.setup(context);
+		Configuration config = context.getConfiguration();
+		int ng = config.getInt("ngram", 5);
+		
+	}
+
+}

@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svnroot/chaski/!svn/ver/45/branches/18645/NGramCount/src/sv/cmu/mapred
+END
+MapReduceJob.java
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svnroot/chaski/!svn/ver/13/branches/18645/NGramCount/src/sv/cmu/mapred/MapReduceJob.java
+END
+NGramCountMapper.java
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svnroot/chaski/!svn/ver/31/branches/18645/NGramCount/src/sv/cmu/mapred/NGramCountMapper.java
+END
+NGramCountReducer.java
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svnroot/chaski/!svn/ver/20/branches/18645/NGramCount/src/sv/cmu/mapred/NGramCountReducer.java
+END
+NGramCountDriver.java
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svnroot/chaski/!svn/ver/45/branches/18645/NGramCount/src/sv/cmu/mapred/NGramCountDriver.java
+END
+Submittable.java
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svnroot/chaski/!svn/ver/13/branches/18645/NGramCount/src/sv/cmu/mapred/Submittable.java
+END
+CommonFileOperations.java
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svnroot/chaski/!svn/ver/13/branches/18645/NGramCount/src/sv/cmu/mapred/CommonFileOperations.java
+END

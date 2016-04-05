@@ -1,0 +1,14 @@
+package sv.cmu.mapred;
+
+import java.io.IOException;
+
+/**
+ * Submittable job (including job containers)
+ * @author qing
+ *
+ */
+public interface Submittable {
+	public boolean waitForCompletion(boolean verbose) throws IOException,
+		InterruptedException, ClassNotFoundException;
+	public void submit() throws IOException, InterruptedException, ClassNotFoundException;
+}
