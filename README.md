@@ -35,7 +35,16 @@ Taken the above result as example, the inner product between “#a” and “#b�
 
 (PS: If you use **MapReduce 2** which is built on a system called **YARN**(Yet Another Resource Negotiator), you can get better performance.)  
 
-## III. How to Run?
+## III. Documents
+```
+# Analysis Report
+$ wget https://s3.amazonaws.com/jeffery/hashtagsim/HashtagSim_Analysis_team004.pdf
+
+# Presentation Slide
+$ wget https://s3.amazonaws.com/jeffery/hashtagsim/HashtagSim_team004_Presentation.pptx
+```
+
+## IV. How to Run?
 ### Step 1. Download
 ```
 # Download repo
